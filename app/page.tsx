@@ -11,6 +11,9 @@ export default function Home() {
           <li>
             <Link href="/request-memoization">Request memoization</Link>
           </li>
+          <li>
+            <Link href="/static-rendering">Static rendering</Link>
+          </li>
         </ul>
       </nav>
     </div>

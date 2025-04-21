@@ -1,12 +1,12 @@
 import { revalidateTag } from 'next/cache';
+import { headers } from 'next/headers';
 import * as v from 'valibot';
-import { getRequestOrigin } from '../_utils/getRequestOrigin';
 
 const UuidSchema = v.object({ uuid: v.string() });
 
 // 5秒間だけキャッシュする
 const fetchUuidWithTimeBasedRevalidation = async () =>
-  fetch(`${await getRequestOrigin()}/api/uuid#time-based`, {
+  fetch(`https://httpbin.org/uuid#time-based`, {
     next: { revalidate: 5 },
   })
     .then((res) => res.json())
@@ -14,7 +14,7 @@ const fetchUuidWithTimeBasedRevalidation = async () =>
 
 // 永続的にキャッシュする
 const fetchUuidWithDataCache = async () =>
-  fetch(`${await getRequestOrigin()}/api/uuid#eternal-cached`, {
+  fetch(`https://httpbin.org/uuid#eternal-cached`, {
     cache: 'force-cache',
   })
     .then((res) => res.json())
@@ -22,14 +22,14 @@ const fetchUuidWithDataCache = async () =>
 
 // 手動でrevalidate指示がくるまでキャッシュする (on-demand)
 const fetchUuidWithTag = async () =>
-  fetch(`${await getRequestOrigin()}/api/uuid#manually`, {
+  fetch(`https://httpbin.org/uuid#manually`, {
     cache: 'force-cache',
     next: { tags: ['tag'] },
   })
     .then((res) => res.json())
     .then((res) => v.parse(UuidSchema, res).uuid);
 
-export default async function DataMemoization() {
+export default async function StaticRendering() {
   const [uuidWithTimeLimitedCache, cachedUuid, uuidWithTaggedCache] =
     await Promise.all([
       fetchUuidWithTimeBasedRevalidation(),
@@ -39,7 +39,7 @@ export default async function DataMemoization() {
 
   return (
     <div>
-      <h1>Data memoization</h1>
+      <h1>Static rendering</h1>
       <ul>
         <li>
           uuid with time limited cache(valid for 5 seconds):{' '}

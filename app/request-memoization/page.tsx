@@ -1,11 +1,11 @@
-import { headers } from 'next/headers';
 import * as v from 'valibot';
+import { getRequestOrigin } from '../_utils/getRequestOrigin';
 
 const UuidSchema = v.object({ uuid: v.string() });
 
 // サーバーリクエストの間だけ有効なキャッシュ
 const fetchUuid = async () =>
-  fetch(`http://${(await headers()).get('host')}/api/uuid`, {
+  fetch(`${await getRequestOrigin()}/api/uuid`, {
     cache: 'no-cache',
   })
     .then((res) => res.json())
