@@ -1,27 +1,28 @@
 import { revalidateTag } from 'next/cache';
+import { headers } from 'next/headers';
 import * as v from 'valibot';
 
 const UuidSchema = v.object({ uuid: v.string() });
 
 // 5秒間だけキャッシュする
-const fetchUuidWithTimeBasedRevalidation = () =>
-  fetch(`http://localhost:${process.env.PORT}/api/uuid#time-based`, {
+const fetchUuidWithTimeBasedRevalidation = async () =>
+  fetch(`http://${(await headers()).get('host')}/api/uuid#time-based`, {
     next: { revalidate: 5 },
   })
     .then((res) => res.json())
     .then((res) => v.parse(UuidSchema, res).uuid);
 
 // 永続的にキャッシュする
-const fetchUuidWithDataCache = () =>
-  fetch(`http://localhost:${process.env.PORT}/api/uuid#eternal-cached`, {
+const fetchUuidWithDataCache = async () =>
+  fetch(`http://${(await headers()).get('host')}/api/uuid#eternal-cached`, {
     cache: 'force-cache',
   })
     .then((res) => res.json())
     .then((res) => v.parse(UuidSchema, res).uuid);
 
 // 手動でrevalidate指示がくるまでキャッシュする (on-demand)
-const fetchUuidWithTag = () =>
-  fetch(`http://localhost:${process.env.PORT}/api/uuid#manually`, {
+const fetchUuidWithTag = async () =>
+  fetch(`http://${(await headers()).get('host')}/api/uuid#manually`, {
     cache: 'force-cache',
     next: { tags: ['tag'] },
   })
